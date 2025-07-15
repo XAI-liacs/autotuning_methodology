@@ -1,6 +1,7 @@
 """Code for curve generation."""
 
-from __future__ import annotations  # for correct nested type hints e.g. list[str], tuple[dict, str]
+from __future__ import \
+    annotations  # for correct nested type hints e.g. list[str], tuple[dict, str]
 
 from abc import ABC, abstractmethod
 from math import ceil, floor, sqrt
@@ -42,10 +43,10 @@ def get_indices_in_distribution(
 
     # check whether each value of draws (excluding NaN) is in dist
     if not skip_draws_check:
-        assert np.all(np.isin(draws[~np.isnan(draws)], dist)), f"""
+        assert np.all(np.in1d(draws[~np.isnan(draws)], dist)), f"""
             Each value in draws should be in dist,
-            but {np.size(draws[~np.isnan(draws)][~np.isin(draws[~np.isnan(draws)], dist)])} values
-            of the {np.size(draws)} are missing: {draws[~np.isnan(draws)][~np.isin(draws[~np.isnan(draws)], dist)]}"""
+            but {np.size(draws[~np.isnan(draws)][~np.in1d(draws[~np.isnan(draws)], dist)])} values
+            of the {np.size(draws)} are missing: {draws[~np.isnan(draws)][~np.in1d(draws[~np.isnan(draws)], dist)]}"""
 
     # check the sorter
     if sorter is not None:
@@ -56,8 +57,8 @@ def get_indices_in_distribution(
     assert indices_found.shape == draws.shape, "The shape of the indices must match the shape of the draws"
 
     # if indices found are outside the array, make them NaN
-    indices_found[indices_found < 0] = np.nan
-    indices_found[indices_found >= len(dist)] = np.nan
+    indices_found[indices_found < 0] = np.NaN
+    indices_found[indices_found >= len(dist)] = np.NaN
 
     return indices_found
 
@@ -83,7 +84,7 @@ def get_indices_in_array(values: np.ndarray, array: np.ndarray) -> np.ndarray:
 
     # replace the indices found with the original, unsorted indices of array
     nan_mask = ~np.isnan(indices_found)
-    indices_found_unsorted = np.full_like(indices_found, fill_value=np.nan)
+    indices_found_unsorted = np.full_like(indices_found, fill_value=np.NaN)
     indices_found_unsorted[nan_mask] = array_sorter[indices_found[nan_mask].astype(int)]
 
     return indices_found_unsorted
@@ -582,10 +583,10 @@ class StochasticOptimizationAlgorithm(Curve):
             fevals_range
         )  # get the indices of the matching feval range per repeat (column)
         masked_values = np.where(
-            matching_indices_mask, self._y, np.nan
+            matching_indices_mask, self._y, np.NaN
         )  # apply the mask to the values, filling NaN for False
         masked_fevals = np.where(
-            matching_indices_mask, self._x_fevals, np.nan
+            matching_indices_mask, self._x_fevals, np.NaN
         ).transpose()  # apply the mask to the fevals, filling NaN for False
 
         # make sure that the filtered fevals are consistent (every repeat has the same array of fevals)
@@ -611,9 +612,9 @@ class StochasticOptimizationAlgorithm(Curve):
             masked_values = masked_values[keep_repeats]
 
             # set all values beyond the greatest common non-NaN index to NaN
-            masked_values[:, greatest_common_non_NaN_index + 1 :] = np.nan
+            masked_values[:, greatest_common_non_NaN_index + 1 :] = np.NaN
             masked_values = masked_values.transpose()  # transpose back to original shape
-            masked_fevals[:, greatest_common_non_NaN_index + 1 :] = np.nan
+            masked_fevals[:, greatest_common_non_NaN_index + 1 :] = np.NaN
 
             # check that the filtered fevals are consistent
             assert np.allclose(masked_fevals, masked_fevals[0], equal_nan=True), (
@@ -687,9 +688,9 @@ class StochasticOptimizationAlgorithm(Curve):
         real_stopping_point_index = real_stopping_point_fevals - 1
         if curve.shape != fevals_range.shape:
             pad_width = self.fevals_find_pad_width(fevals, fevals_range)
-            curve = np.pad(curve, pad_width=pad_width, constant_values=np.nan)
-            curve_lower_err = np.pad(curve_lower_err, pad_width=pad_width, constant_values=np.nan)
-            curve_upper_err = np.pad(curve_upper_err, pad_width=pad_width, constant_values=np.nan)
+            curve = np.pad(curve, pad_width=pad_width, constant_values=np.NaN)
+            curve_lower_err = np.pad(curve_lower_err, pad_width=pad_width, constant_values=np.NaN)
+            curve_upper_err = np.pad(curve_upper_err, pad_width=pad_width, constant_values=np.NaN)
         assert curve.shape == fevals_range.shape, "The curve shape must match the input fevals_range shape"
 
         # if necessary, extend the curves up to target_index
@@ -737,7 +738,7 @@ class StochasticOptimizationAlgorithm(Curve):
 
         # find the stopping point
         times_no_nan = times
-        times_no_nan[np.isnan(values)] = np.nan  # to count only valid configurations towards highest time
+        times_no_nan[np.isnan(values)] = np.NaN  # to count only valid configurations towards highest time
         highest_time_per_repeat = np.nanmax(times_no_nan, axis=0)
         assert highest_time_per_repeat.shape[0] == num_repeats
         highest_time_per_repeat = np.sort(highest_time_per_repeat)
@@ -768,8 +769,8 @@ class StochasticOptimizationAlgorithm(Curve):
                 self.application_name,
                 self.device_name,
             )
-        times = np.where(range_mask_margin, times, np.nan)
-        values = np.where(range_mask_margin, values, np.nan)
+        times = np.where(range_mask_margin, times, np.NaN)
+        values = np.where(range_mask_margin, values, np.NaN)
         num_repeats = values.shape[1]
 
         # remove columns that are completely NaN
@@ -907,7 +908,7 @@ class StochasticOptimizationAlgorithm(Curve):
         objective_time_keys = searchspace_stats.objective_time_keys
         num_keys = len(objective_time_keys)
         num_repeats = matching_indices_mask.shape[1]
-        masked_time_per_key = np.full((num_keys, matching_indices_mask.shape[0], num_repeats), np.nan)
+        masked_time_per_key = np.full((num_keys, matching_indices_mask.shape[0], num_repeats), np.NaN)
 
         # for each key, apply the boolean mask
         for key_index in range(num_keys):
@@ -916,13 +917,13 @@ class StochasticOptimizationAlgorithm(Curve):
             ]
 
         # remove where every repeat has NaN
-        time_in_range_per_key = np.full((num_keys, fevals_range.shape[0], num_repeats), np.nan)
+        time_in_range_per_key = np.full((num_keys, fevals_range.shape[0], num_repeats), np.NaN)
         for key_index in range(num_keys):
             all_nan_mask = ~np.all(np.isnan(masked_time_per_key[key_index]), axis=1)
             time_in_range_per_key[key_index] = masked_time_per_key[key_index][all_nan_mask]
 
         # get the median time per key at each repeat
-        split_time_per_feval = np.full((num_keys, fevals_range.shape[0]), np.nan)
+        split_time_per_feval = np.full((num_keys, fevals_range.shape[0]), np.NaN)
         for key_index in range(num_keys):
             split_time_per_feval[key_index] = np.mean(time_in_range_per_key[key_index], axis=1)
         assert split_time_per_feval.shape == (
@@ -941,7 +942,7 @@ class StochasticOptimizationAlgorithm(Curve):
 
         # for each key, interpolate the split times to the time range
         num_keys = len(searchspace_stats.objective_time_keys)
-        split_time_per_timestamp = np.full((num_keys, time_range.shape[0]), np.nan)
+        split_time_per_timestamp = np.full((num_keys, time_range.shape[0]), np.NaN)
         for key_index in range(num_keys):
             # remove NaN
             times_split_key = times_split[key_index]
@@ -982,8 +983,8 @@ class StochasticOptimizationAlgorithm(Curve):
         base = z * sqrt(nq * (1 - q))
         lower_rank = max(floor(nq - base), 0)
         upper_rank = min(ceil(nq + base) + 1, n - 1)
-        confidence_interval_lower = np.full(values.shape[0], np.nan)
-        confidence_interval_upper = np.full(values.shape[0], np.nan)
+        confidence_interval_lower = np.full(values.shape[0], np.NaN)
+        confidence_interval_upper = np.full(values.shape[0], np.NaN)
 
         # # confidence interval according to Hoefler 2015 (student-t)
         # alpha = 1 - confidence_level
@@ -1008,7 +1009,7 @@ class StochasticOptimizationAlgorithm(Curve):
         num_repeats = values.shape[1]
 
         # predict an isotonic curve for the time range for each run
-        predictions = np.full((num_repeats, time_range.shape[0]), fill_value=np.nan)
+        predictions = np.full((num_repeats, time_range.shape[0]), fill_value=np.NaN)
         for run in range(num_repeats):
             # get the data of this run
             _x = times[:, run]

@@ -9,12 +9,10 @@ from typing import Callable, Optional
 import numpy as np
 from scipy.interpolate import PchipInterpolator
 
-from autotuning_methodology.curves import (
-    CurveBasis,
-    StochasticOptimizationAlgorithm,
-    get_indices_in_array,
-    moving_average,
-)
+from autotuning_methodology.curves import (CurveBasis,
+                                           StochasticOptimizationAlgorithm,
+                                           get_indices_in_array,
+                                           moving_average)
 from autotuning_methodology.searchspace_statistics import SearchspaceStatistics
 
 
@@ -221,7 +219,7 @@ class RandomSearchCalculatedBaseline(Baseline):
 
         # for each key, obtain the time at a feval
         objective_time_keys = searchspace_stats.objective_time_keys
-        split_time_per_feval = np.full((len(objective_time_keys), index_at_feval.shape[0]), np.nan)
+        split_time_per_feval = np.full((len(objective_time_keys), index_at_feval.shape[0]), np.NaN)
         for key_index, key in enumerate(objective_time_keys):
             split_time_per_feval[key_index] = searchspace_stats.objective_times_array[key_index, index_at_feval]
 

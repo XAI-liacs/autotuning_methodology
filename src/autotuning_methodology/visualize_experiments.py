@@ -1,6 +1,7 @@
 """Visualize the results of the experiments."""
 
-from __future__ import annotations  # for correct nested type hints e.g. list[str], tuple[dict, str]
+from __future__ import \
+    annotations  # for correct nested type hints e.g. list[str], tuple[dict, str]
 
 import warnings
 from collections import defaultdict
@@ -12,19 +13,16 @@ import numpy as np
 from matplotlib.cm import get_cmap
 from matplotlib.colors import LinearSegmentedColormap, rgb2hex, to_hex, to_rgb
 
-from autotuning_methodology.baseline import (
-    Baseline,
-    ExecutedStrategyBaseline,
-    RandomSearchCalculatedBaseline,
-    RandomSearchSimulatedBaseline,
-)
+from autotuning_methodology.baseline import (Baseline,
+                                             ExecutedStrategyBaseline,
+                                             RandomSearchCalculatedBaseline,
+                                             RandomSearchSimulatedBaseline)
 from autotuning_methodology.curves import Curve, CurveBasis
-from autotuning_methodology.experiments import execute_experiment, get_args_from_cli
+from autotuning_methodology.experiments import (execute_experiment,
+                                                get_args_from_cli)
 from autotuning_methodology.report_experiments import (
-    get_aggregation_data,
-    get_aggregation_data_key,
-    get_strategies_aggregated_performance,
-)
+    get_aggregation_data, get_aggregation_data_key,
+    get_strategies_aggregated_performance)
 from autotuning_methodology.searchspace_statistics import SearchspaceStatistics
 
 # The kernel information per device and device information for visualization purposes
@@ -872,7 +870,7 @@ class Visualize:
                     for strategy2 in comparison_data_raw[strategy1].keys():
                         comparison = comparison_data_raw[strategy1][strategy2]
                         if len([v for v in comparison if np.isnan(v)]) > ceil(0.5 * len(comparison)):
-                            comparison_data_raw[strategy1][strategy2] = [np.nan] * len(comparison)
+                            comparison_data_raw[strategy1][strategy2] = [np.NaN] * len(comparison)
 
                 # convert the comparison data dictionary to a 2D numpy array of means
                 comparison_data = np.array(
@@ -1278,7 +1276,7 @@ class Visualize:
             for _ in range((len(strategies_curves) - len(self.plot_skip_strategies)) + 1)
         )
         for objective_time_key in objective_time_keys:
-            data_dict[objective_time_key] = np.full((len(strategies_curves)), np.nan)
+            data_dict[objective_time_key] = np.full((len(strategies_curves)), np.NaN)
         for strategy_index, strategy_curve in enumerate(strategies_curves):
             if strategy_curve.name in self.plot_skip_strategies:
                 continue
@@ -1437,7 +1435,7 @@ class Visualize:
             # compare against all other strategies
             for strategy_index_beta, strategy_beta in enumerate(self.strategies):
                 if strategy_index_alpha == strategy_index_beta:
-                    inner_comparison_data[strategy_index_beta] = np.nan
+                    inner_comparison_data[strategy_index_beta] = np.NaN
                     continue
                 strategy_curve_beta = strategies_curves[strategy_index_beta]
                 _, time_range_beta, curve_beta, _, _ = strategy_curve_beta.get_curve(
@@ -1456,7 +1454,7 @@ class Visualize:
                         # if strategy beta never reaches the performance of strategy alpha, we cannot compare, instead we take the time at the end so we know what the minimal performance gain is
                         time_at_comparison_beta = time_range_beta[-1]
                         # another alternative: take the last time * fraction of inverse (e.g. if GA-nc doesn’t find the objective of GA, take end-of-time * 1/([GA-to-GAnc]/100))
-                        # inner_comparison_data[strategy_index_beta] = np.nan
+                        # inner_comparison_data[strategy_index_beta] = np.NaN
                         # continue
                     else:
                         # get the time at which strategy beta reaches the performance of strategy alpha
